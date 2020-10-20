@@ -201,9 +201,11 @@ func BenchmarkFlatten(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		set.Flatten()
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			set.Flatten()
+		}
+	})
 }
 
 func BenchmarkLen(b *testing.B) {
@@ -214,9 +216,11 @@ func BenchmarkLen(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		set.Len()
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			set.Len()
+		}
+	})
 }
 
 func BenchmarkExists(b *testing.B) {
@@ -224,14 +228,18 @@ func BenchmarkExists(b *testing.B) {
 	set.Add(1)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		set.Exists(1)
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			set.Exists(1)
+		}
+	})
 }
 
 func BenchmarkClear(b *testing.B) {
 	set := New()
-	for i := 0; i < b.N; i++ {
-		set.Clear()
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			set.Clear()
+		}
+	})
 }
