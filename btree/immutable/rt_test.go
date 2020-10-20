@@ -984,13 +984,14 @@ func BenchmarkGetitems(b *testing.B) {
 	id := rt.ID()
 
 	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		rt, err = Load(cfg.Persister, id, comparator)
-		require.NoError(b, err)
-		_, err = rt.(*Tr).toList(itemsToValues(items...)...)
-		require.NoError(b, err)
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			rt, err = Load(cfg.Persister, id, comparator)
+			require.NoError(b, err)
+			_, err = rt.(*Tr).toList(itemsToValues(items...)...)
+			require.NoError(b, err)
+		}
+	})
 }
 
 func BenchmarkBulkAdd(b *testing.B) {
@@ -998,9 +999,11 @@ func BenchmarkBulkAdd(b *testing.B) {
 	items := generateLinearItems(number)
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		tr := New(defaultConfig())
-		mutable := tr.AsMutable()
-		mutable.AddItems(items...)
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			tr := New(defaultConfig())
+			mutable := tr.AsMutable()
+			mutable.AddItems(items...)
+		}
+	})
 }
