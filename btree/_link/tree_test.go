@@ -237,10 +237,16 @@ func BenchmarkSimpleAdd(b *testing.B) {
 	tree := newTree(16, 8)
 
 	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		tree.Insert(keys[i%numItems])
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			if i >= b.N {
+				break
+			}
+			tree.Insert(keys[i%numItems])
+			i++
+		}
+	})
 }
 
 func BenchmarkGet(b *testing.B) {
@@ -250,10 +256,16 @@ func BenchmarkGet(b *testing.B) {
 	tree.Insert(keys...)
 
 	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		tree.Get(keys[i%numItems])
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		i := 0
+		for pb.Next() {
+			if i >= b.N {
+				break
+			}
+			tree.Get(keys[i%numItems])
+			i++
+		}
+	})
 }
 
 func BenchmarkBulkAdd(b *testing.B) {
@@ -261,9 +273,10 @@ func BenchmarkBulkAdd(b *testing.B) {
 	keys := generateRandomKeys(numItems)
 
 	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		tree := newTree(64, 1)
-		tree.Insert(keys...)
-	}
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			tree := newTree(64, 1)
+			tree.Insert(keys...)
+		}
+	})
 }
